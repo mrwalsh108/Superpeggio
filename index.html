@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superpeggio</title>
+    <!-- Imported Horror Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Custom Horror Title Class */
+        .horror-title {
+            font-family: 'Creepster', cursive;
+            text-shadow: 4px 4px 0px #020617, 0 0 15px rgba(185, 28, 28, 0.6);
+            letter-spacing: 0.1em;
+        }
+
+        .control-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        input[type="range"] {
+            accent-color: #991b1b;
+        }
+        
+        select {
+            background-color: #334155;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+        }
+        .active-btn {
+            background-color: #ef4444 !important;
+            border-color: #f87171 !important;
+        }
+        
+        .sync-active {
+            color: #f87171;
+            border-color: #f87171;
+            background-color: rgba(248, 113, 113, 0.1);
+        }
+        
+        .quad-active {
+            background-color: #f59e0b !important;
+            border-color: #d97706 !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 text-center">
+            <h1 class="text-6xl md:text-7xl horror-title text-red-700 uppercase transform hover:scale-105 transition-transform duration-500 cursor-default">
+                Superpeggio
+            </h1>
+            <p class="text-slate-400 mt-2 italic">A tri-oscillator generative sequencer, at your service.</p>
+        </header>
+
+        <div class="flex flex-wrap justify-center mb-8 gap-4">
+            <button id="startAllBtn" class="bg-red-900 hover:bg-red-800 text-white font-bold py-3 px-10 rounded-full transition-all shadow-lg border-b-4 border-red-950 active:border-b-0 active:translate-y-1">
+                START ALL
+            </button>
+            <button id="stopAllBtn" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-10 rounded-full transition-all border-b-4 border-slate-900 active:border-b-0 active:translate-y-1">
+                STOP ALL
+            </button>
+            <button id="quadToggleBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-3 px-10 rounded-full transition-all border-b-4 border-slate-900 active:border-b-0 active:translate-y-1 uppercase">
+                Quad Mode: Off
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Oscillator 1 -->
+            <div id="osc1-ui" class="control-card border-t-4 border-t-red-800">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-red-600">Oscillator 1</h2>
+                        <button id="osc1-toggle" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs font-bold border-b-2 border-emerald-800 uppercase">Start Osc 1</button>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Random Frequencies (Loop Length)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc1-count" min="1" max="33" value="12" class="w-full">
+                                <span id="osc1-count-val" class="w-10 text-right text-sm font-mono">12</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Min Freq</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" id="osc1-min" min="20" max="600" value="100" class="w-full">
+                                    <span id="osc1-min-val" class="w-10 text-right text-xs font-mono">100</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Max Freq</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" id="osc1-max" min="100" max="600" value="500" class="w-full">
+                                    <span id="osc1-max-val" class="w-10 text-right text-xs font-mono">500</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 pt-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="osc1-harmonic" class="w-4 h-4 rounded accent-red-700">
+                                    <label for="osc1-harmonic" class="text-sm">Harmonic</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="osc1-minor3" class="w-4 h-4 rounded accent-red-700">
+                                    <label for="osc1-minor3" class="text-sm font-bold text-red-400">MINOR THIRDS</label>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="osc1-legato" class="w-4 h-4 rounded accent-red-700">
+                                <label for="osc1-legato" class="text-sm font-bold text-red-600">LEGATO</label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Order</label>
+                                <select id="osc1-order" class="w-full text-sm">
+                                    <option value="up">Up</option>
+                                    <option value="down">Down</option>
+                                    <option value="random">Random (Fixed)</option>
+                                    <option value="updown">Up/Down</option>
+                                    <option value="downup">Down/Up</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</label>
+                                <select id="osc1-wave" class="w-full text-sm">
+                                    <option value="square">Square</option>
+                                    <option value="sawtooth">Sawtooth</option>
+                                    <option value="triangle">Triangle</option>
+                                    <option value="farfisa">Cheap Farfisa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Portamento (Glide)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc1-port" min="0" max="0.5" step="0.01" value="0" class="w-full">
+                                <span id="osc1-port-val" class="w-10 text-right text-sm font-mono">0.00</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Note Density</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc1-density" min="0" max="1" step="0.01" value="1" class="w-full">
+                                <span id="osc1-density-val" class="w-10 text-right text-sm font-mono">1.00</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Rate (Notes/Min)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc1-rate" min="10" max="800" value="240" class="w-full">
+                                <span id="osc1-rate-val" class="w-10 text-right text-sm font-mono">240</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Regenerate After</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc1-regen" min="2" max="32" value="8" class="w-full">
+                                <span id="osc1-regen-val" class="w-10 text-right text-sm font-mono">8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oscillator 2 -->
+            <div id="osc2-ui" class="control-card border-t-4 border-t-purple-500">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-purple-300">Oscillator 2</h2>
+                        <button id="osc2-toggle" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs font-bold border-b-2 border-emerald-800 uppercase">Start Osc 2</button>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="p-2 bg-slate-800/50 rounded-lg border border-slate-700">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="checkbox" id="osc2-copy" class="w-4 h-4 rounded accent-purple-500">
+                                    <label for="osc2-copy" class="text-xs font-semibold uppercase tracking-wide">Copy Osc 1</label>
+                                </div>
+                                <label class="block text-xs text-slate-400 mb-1">Modulation (±1 Octave)</label>
+                                <input type="range" id="osc2-mod" min="-1" max="1" step="0.01" value="0" class="w-full">
+                            </div>
+                            
+                            <button id="osc2-sync-tempo" class="w-full py-2 px-3 border border-slate-600 rounded text-xs font-bold hover:bg-slate-700 transition-colors uppercase">
+                                Sync Tempo to Osc 1
+                            </button>
+                        </div>
+
+                        <div id="osc2-manual-controls" class="space-y-5 transition-opacity duration-300">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Random Freqs</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="range" id="osc2-count" min="1" max="33" value="12" class="w-full">
+                                    <span id="osc2-count-val" class="w-10 text-right text-sm font-mono">12</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Min Freq</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="range" id="osc2-min" min="20" max="600" value="100" class="w-full">
+                                        <span id="osc2-min-val" class="w-10 text-right font-mono text-xs">100</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Max Freq</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="range" id="osc2-max" min="100" max="600" value="500" class="w-full">
+                                        <span id="osc2-max-val" class="w-10 text-right font-mono text-xs">500</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2 pt-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <input type="checkbox" id="osc2-harmonic" class="w-4 h-4 rounded accent-purple-500">
+                                        <label for="osc2-harmonic" class="text-sm">Harmonic</label>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <input type="checkbox" id="osc2-minor3" class="w-4 h-4 rounded accent-purple-500">
+                                        <label for="osc2-minor3" class="text-sm font-bold text-purple-400">MINOR THIRDS</label>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="osc2-legato" class="w-4 h-4 rounded accent-purple-500">
+                                    <label for="osc2-legato" class="text-sm font-bold text-purple-400">LEGATO</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Order</label>
+                                <select id="osc2-order" class="w-full text-sm">
+                                    <option value="up">Up</option>
+                                    <option value="down">Down</option>
+                                    <option value="random">Random (Fixed)</option>
+                                    <option value="updown">Up/Down</option>
+                                    <option value="downup">Down/Up</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</label>
+                                <select id="osc2-wave" class="w-full text-sm">
+                                    <option value="square">Square</option>
+                                    <option value="sawtooth">Sawtooth</option>
+                                    <option value="triangle">Triangle</option>
+                                    <option value="farfisa">Cheap Farfisa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Portamento (Glide)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc2-port" min="0" max="0.5" step="0.01" value="0" class="w-full">
+                                <span id="osc2-port-val" class="w-10 text-right font-mono text-sm">0.00</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Note Density</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc2-density" min="0" max="1" step="0.01" value="1" class="w-full">
+                                <span id="osc2-density-val" class="w-10 text-right font-mono text-sm">1.00</span>
+                            </div>
+                        </div>
+
+                        <div id="osc2-rate-container">
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Rate (Notes/Min)</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc2-rate" min="10" max="800" value="240" class="w-full">
+                                <span id="osc2-rate-val" class="w-10 text-right font-mono text-sm">240</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Regenerate After</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc2-regen" min="2" max="32" value="8" class="w-full">
+                                <span id="osc2-regen-val" class="w-10 text-right font-mono text-sm">8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bass Pedal -->
+            <div id="osc3-ui" class="control-card border-t-4 border-t-amber-500">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-amber-300">Bass Pedal</h2>
+                        <button id="osc3-toggle" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-xs font-bold border-b-2 border-emerald-800 uppercase">Start Bass</button>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                            <p class="text-sm text-slate-300 mb-2 italic">
+                                Plays Oscillator 1's lowest note, modulated to remain between 50 Hz and 130 Hz.
+                            </p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <input type="checkbox" id="osc3-glide" class="w-4 h-4 rounded accent-amber-500" checked>
+                                <label for="osc3-glide" class="text-xs uppercase tracking-wide text-slate-400">Enable Glide</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Volume</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="osc3-vol" min="0" max="0.5" step="0.01" value="0.05" class="w-full accent-amber-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Pulse Width (PWM)</label>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-500">Thin</span>
+                                <input type="range" id="osc3-width" min="-0.95" max="0.95" step="0.01" value="0" class="w-full accent-amber-500">
+                                <span class="text-xs text-slate-500">Wide</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                            <div class="flex items-center gap-2 mb-3 border-b border-slate-600 pb-2">
+                                <input type="checkbox" id="osc3-lfo-enable" class="w-4 h-4 rounded accent-amber-500">
+                                <label for="osc3-lfo-enable" class="text-xs font-bold uppercase tracking-wide text-amber-500">Enable PWM LFO</label>
+                            </div>
+                            
+                            <div class="space-y-3" id="osc3-lfo-controls" style="opacity: 0.5;">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">LFO Rate (Speed)</label>
+                                    <input type="range" id="osc3-lfo-rate" min="0.1" max="10" step="0.1" value="0.5" class="w-full accent-amber-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">LFO Depth</label>
+                                    <input type="range" id="osc3-lfo-depth" min="0" max="0.9" step="0.01" value="0.5" class="w-full accent-amber-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        let quadActive = false;
+        let quadCaptureBuffer = []; 
+        let currentQuadIndex = 0;   
+        let quadPlaybackMode = false; 
+
+        class BassPedal {
+            constructor() {
+                this.isPlaying = false;
+                this.currentFreq = 110;
+                this.osc = null; this.shaper = null; this.bias = null; this.gain = null; this.lfo = null; this.lfoGain = null;
+                
+                this.ui = {
+                    toggle: document.getElementById('osc3-toggle'),
+                    vol: document.getElementById('osc3-vol'),
+                    width: document.getElementById('osc3-width'),
+                    glide: document.getElementById('osc3-glide'),
+                    lfoEnable: document.getElementById('osc3-lfo-enable'),
+                    lfoRate: document.getElementById('osc3-lfo-rate'),
+                    lfoDepth: document.getElementById('osc3-lfo-depth'),
+                    lfoControls: document.getElementById('osc3-lfo-controls')
+                };
+
+                const curveLength = 256;
+                const curve = new Float32Array(curveLength);
+                for (let i = 0; i < curveLength; i++) {
+                    const x = (i / (curveLength - 1)) * 2 - 1;
+                    curve[i] = x < 0 ? -1 : 1;
+                }
+                this.pwmCurve = curve;
+                this.setupListeners();
+            }
+
+            setupListeners() {
+                this.ui.toggle.onclick = () => this.toggle();
+                this.ui.vol.oninput = () => { if (this.gain) this.gain.gain.setTargetAtTime(parseFloat(this.ui.vol.value), audioCtx.currentTime, 0.1); };
+                this.ui.width.oninput = () => { if (this.bias) this.bias.offset.setTargetAtTime(parseFloat(this.ui.width.value), audioCtx.currentTime, 0.1); };
+                this.ui.lfoRate.oninput = () => { if (this.lfo) this.lfo.frequency.setTargetAtTime(parseFloat(this.ui.lfoRate.value), audioCtx.currentTime, 0.1); };
+                this.ui.lfoDepth.oninput = () => { if (this.lfoGain) this.lfoGain.gain.setTargetAtTime(parseFloat(this.ui.lfoDepth.value), audioCtx.currentTime, 0.1); };
+                
+                this.ui.lfoEnable.onchange = () => {
+                    this.ui.lfoControls.style.opacity = this.ui.lfoEnable.checked ? "1" : "0.5";
+                    if(this.isPlaying) {
+                        this.stop();
+                        setTimeout(() => this.start(), 50);
+                    }
+                };
+            }
+
+            updateNote(rawFreq) {
+                if (!rawFreq) return;
+                let targetFreq = rawFreq;
+                while (targetFreq < 50) targetFreq *= 2;
+                while (targetFreq > 130) targetFreq /= 2;
+                this.currentFreq = targetFreq;
+                if (this.isPlaying && this.osc) {
+                    if (this.ui.glide.checked) this.osc.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.2);
+                    else this.osc.frequency.setValueAtTime(targetFreq, audioCtx.currentTime);
+                }
+            }
+
+            start() {
+                if (this.isPlaying) return;
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                this.osc = audioCtx.createOscillator();
+                this.osc.type = 'triangle';
+                this.osc.frequency.value = this.currentFreq;
+
+                this.bias = audioCtx.createConstantSource();
+                this.bias.offset.value = parseFloat(this.ui.width.value);
+
+                this.shaper = audioCtx.createWaveShaper();
+                this.shaper.curve = this.pwmCurve;
+
+                this.gain = audioCtx.createGain();
+                this.gain.gain.value = 0;
+
+                this.osc.connect(this.shaper);
+                this.bias.connect(this.shaper);
+                this.shaper.connect(this.gain);
+                this.gain.connect(audioCtx.destination);
+
+                if (this.ui.lfoEnable.checked) {
+                    this.lfo = audioCtx.createOscillator();
+                    this.lfo.frequency.value = parseFloat(this.ui.lfoRate.value);
+                    this.lfoGain = audioCtx.createGain();
+                    this.lfoGain.gain.value = parseFloat(this.ui.lfoDepth.value);
+                    
+                    this.lfo.connect(this.lfoGain);
+                    this.lfoGain.connect(this.bias.offset);
+                    this.lfo.start();
+                }
+
+                this.osc.start();
+                this.bias.start();
+                this.gain.gain.setTargetAtTime(parseFloat(this.ui.vol.value), audioCtx.currentTime, 0.1);
+                
+                this.isPlaying = true;
+                this.ui.toggle.textContent = "STOP BASS";
+                this.ui.toggle.classList.add('active-btn');
+            }
+
+            stop() {
+                if (!this.isPlaying) return;
+                this.gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                
+                const oldOsc = this.osc;
+                const oldBias = this.bias;
+                const oldLfo = this.lfo;
+
+                setTimeout(() => { 
+                    try { if(oldOsc) oldOsc.stop(); } catch(e){}
+                    try { if(oldBias) oldBias.stop(); } catch(e){}
+                    try { if(oldLfo) oldLfo.stop(); } catch(e){}
+                }, 150);
+
+                this.isPlaying = false;
+                this.ui.toggle.textContent = "START BASS";
+                this.ui.toggle.classList.remove('active-btn');
+                this.osc = null; this.bias = null; this.lfo = null;
+            }
+
+            toggle() { this.isPlaying ? this.stop() : this.start(); }
+        }
+
+        class ArpeggioOscillator {
+            constructor(index) {
+                this.index = index;
+                this.isPlaying = false;
+                this.frequencies = [];
+                this.sequence = [];
+                this.gateMap = [];
+                this.currentIndex = 0;
+                this.totalCyclesCompleted = 0;
+                this.direction = 1;
+                this.timeoutId = null;
+                this.stepInLoop = 0;
+                this.isTempoSynced = false;
+                this.prefix = `osc${index}`;
+                
+                this.ui = {
+                    toggle: document.getElementById(`${this.prefix}-toggle`),
+                    count: document.getElementById(`${this.prefix}-count`),
+                    min: document.getElementById(`${this.prefix}-min`),
+                    max: document.getElementById(`${this.prefix}-max`),
+                    harmonic: document.getElementById(`${this.prefix}-harmonic`),
+                    minor3: document.getElementById(`${this.prefix}-minor3`),
+                    legato: document.getElementById(`${this.prefix}-legato`),
+                    order: document.getElementById(`${this.prefix}-order`),
+                    wave: document.getElementById(`${this.prefix}-wave`),
+                    rate: document.getElementById(`${this.prefix}-rate`),
+                    regen: document.getElementById(`${this.prefix}-regen`),
+                    port: document.getElementById(`${this.prefix}-port`),
+                    density: document.getElementById(`${this.prefix}-density`),
+                    countVal: document.getElementById(`${this.prefix}-count-val`),
+                    minVal: document.getElementById(`${this.prefix}-min-val`),
+                    maxVal: document.getElementById(`${this.prefix}-max-val`),
+                    portVal: document.getElementById(`${this.prefix}-port-val`),
+                    densityVal: document.getElementById(`${this.prefix}-density-val`),
+                    rateVal: document.getElementById(`${this.prefix}-rate-val`),
+                    regenVal: document.getElementById(`${this.prefix}-regen-val`)
+                };
+
+                if (index === 2) {
+                    this.ui.copy = document.getElementById('osc2-copy');
+                    this.ui.mod = document.getElementById('osc2-mod');
+                    this.ui.manualArea = document.getElementById('osc2-manual-controls');
+                    this.ui.syncTempoBtn = document.getElementById('osc2-sync-tempo');
+                }
+                this.setupListeners();
+            }
+
+            setupListeners() {
+                const sliders = ['count', 'min', 'max', 'port', 'density', 'rate', 'regen'];
+                
+                sliders.forEach(key => {
+                    if(!this.ui[key]) return;
+                    this.ui[key].oninput = () => {
+                        const val = this.ui[key].value;
+                        const display = this.ui[`${key}Val`];
+                        
+                        if (key === 'port' || key === 'density') {
+                            display.textContent = parseFloat(val).toFixed(2);
+                        } else {
+                            display.textContent = val;
+                        }
+
+                        if (this.index === 1 && quadActive) {
+                            if (osc2.ui[key]) {
+                                osc2.ui[key].value = val;
+                                if (osc2.ui[`${key}Val`]) {
+                                    osc2.ui[`${key}Val`].textContent = display.textContent;
+                                }
+                            }
+                        }
+                    };
+                });
+
+                if (this.index === 2) {
+                    this.ui.syncTempoBtn.onclick = () => { if(!quadActive) { this.isTempoSynced = !this.isTempoSynced; this.applyTempoSyncUI(); } };
+                }
+                this.ui.toggle.onclick = () => this.toggle();
+            }
+
+            applyTempoSyncUI() {
+                if (this.isTempoSynced || (this.index === 2 && quadActive)) {
+                    this.ui.syncTempoBtn.classList.add('sync-active');
+                    this.ui.syncTempoBtn.textContent = 'Tempo Synced';
+                } else {
+                    this.ui.syncTempoBtn.classList.remove('sync-active');
+                    this.ui.syncTempoBtn.textContent = 'Sync Tempo to Osc 1';
+                }
+            }
+
+            generateFrequencies() {
+                if (this.index === 1 && quadActive) {
+                    if (!quadPlaybackMode) {
+                        this.internalGenerate();
+                        osc2.internalGenerate();
+                        
+                        quadCaptureBuffer[currentQuadIndex] = {
+                            osc1: { seq: [...this.sequence], gates: [...this.gateMap], bass: this.frequencies[0] },
+                            osc2: { seq: [...osc2.sequence], gates: [...osc2.gateMap] }
+                        };
+                        
+                        currentQuadIndex++;
+                        if (currentQuadIndex >= 4) {
+                            quadPlaybackMode = true;
+                            currentQuadIndex = 0;
+                        }
+                    } else {
+                        const data = quadCaptureBuffer[currentQuadIndex];
+                        this.sequence = [...data.osc1.seq];
+                        this.gateMap = [...data.osc1.gates];
+                        bassPedal.updateNote(data.osc1.bass);
+                        
+                        osc2.sequence = [...data.osc2.seq];
+                        osc2.gateMap = [...data.osc2.gates];
+                        
+                        currentQuadIndex = (currentQuadIndex + 1) % 4;
+                    }
+                } else if (this.index === 1 || (this.index === 2 && !quadActive)) {
+                    this.internalGenerate();
+                }
+
+                this.totalCyclesCompleted = 0;
+                this.stepInLoop = 0;
+                this.resetIndex();
+            }
+
+            internalGenerate() {
+                const count = parseInt(this.ui.count.value);
+                if (this.index === 2 && (this.ui.copy.checked || quadActive)) {
+                    this.frequencies = [...osc1.frequencies].map(f => f * Math.pow(2, parseFloat(this.ui.mod.value)));
+                } else {
+                    const min = parseFloat(this.ui.min.value), max = parseFloat(this.ui.max.value);
+                    let fArr = [];
+                    
+                    if (this.ui.minor3.checked) {
+                        // Select a random root frequency within the range
+                        const root = min + Math.random() * (max - min);
+                        // Minor third ratio is 2^(3/12)
+                        const m3Ratio = Math.pow(2, 3/12);
+                        
+                        for (let i = 0; i < count; i++) {
+                            // Randomly select a number of minor thirds away from root
+                            // ensuring we stay roughly within hearing range
+                            const steps = Math.floor(Math.random() * 21) - 10;
+                            const f = root * Math.pow(m3Ratio, steps);
+                            // Constrain to general range but allow some spillover for musicality
+                            fArr.push(Math.max(20, Math.min(2000, f)));
+                        }
+                    } else if (this.ui.harmonic.checked) {
+                        const base = min + (Math.random() * (max - min) * 0.1);
+                        for (let i = 0; i < count; i++) fArr.push(base * (Math.floor(Math.random() * 24) + 1));
+                    } else {
+                        for (let i = 0; i < count; i++) fArr.push(min + (Math.random() * (max - min)));
+                    }
+                    this.frequencies = fArr.sort((a, b) => a - b);
+                }
+                this.buildSequence();
+                this.generateGateMap();
+                if (this.index === 1 && this.frequencies.length > 0) bassPedal.updateNote(this.frequencies[0]);
+            }
+
+            buildSequence() {
+                this.sequence = [...this.frequencies];
+                if (this.ui.order.value === 'random') {
+                    for (let i = this.sequence.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [this.sequence[i], this.sequence[j]] = [this.sequence[j], this.sequence[i]];
+                    }
+                }
+            }
+
+            generateGateMap() {
+                const density = parseFloat(this.ui.density.value);
+                const order = this.ui.order.value;
+                const len = this.sequence.length;
+                let actualLength = (order === 'updown' || order === 'downup') ? Math.max(1, (len * 2) - 2) : Math.max(1, len);
+                this.gateMap = Array.from({length: actualLength}, () => Math.random() <= density);
+            }
+
+            resetIndex() {
+                const order = this.ui.order.value, len = this.sequence.length;
+                if (len === 0) return;
+                this.currentIndex = (order === 'down' || order === 'downup') ? len - 1 : 0;
+                this.direction = 1;
+            }
+
+            playNext() {
+                if (!this.isPlaying) return;
+                const rate = (this.index === 2 && (this.isTempoSynced || quadActive)) ? osc1.ui.rate.value : this.ui.rate.value;
+                const stepSec = (60 / parseInt(rate));
+                const now = audioCtx.currentTime;
+                
+                if (this.sequence.length > 0) {
+                    if (this.gateMap[this.stepInLoop]) this.triggerSynth(this.sequence[this.currentIndex], now, stepSec);
+                }
+                
+                const stepsPerLoop = this.gateMap.length || 1;
+                this.stepInLoop++;
+                this.advanceIndex();
+                
+                if (this.stepInLoop >= stepsPerLoop) {
+                    this.stepInLoop = 0;
+                    this.totalCyclesCompleted++;
+                    if (this.totalCyclesCompleted >= parseInt(this.ui.regen.value)) {
+                        if (quadActive) {
+                            if (this.index === 1) this.generateFrequencies(); 
+                            else { this.totalCyclesCompleted = 0; this.resetIndex(); }
+                        } else {
+                            this.generateFrequencies();
+                        }
+                    }
+                }
+                this.timeoutId = setTimeout(() => this.playNext(), stepSec * 1000);
+            }
+
+            advanceIndex() {
+                const order = this.ui.order.value, len = this.sequence.length;
+                if (len <= 1) { this.currentIndex = 0; return; }
+                switch (order) {
+                    case 'up': case 'random': this.currentIndex = (this.currentIndex + 1) % len; break;
+                    case 'down': this.currentIndex = (this.currentIndex - 1 + len) % len; break;
+                    case 'updown': this.currentIndex += this.direction; if (this.currentIndex >= len - 1 || this.currentIndex <= 0) this.direction *= -1; break;
+                    case 'downup': this.currentIndex -= this.direction; if (this.currentIndex <= 0 || this.currentIndex >= len - 1) this.direction *= -1; break;
+                }
+            }
+
+            triggerSynth(freq, time, stepSec) {
+                const isLegato = this.ui.legato.checked;
+                const portTime = parseFloat(this.ui.port.value);
+                const noteDur = isLegato ? stepSec : stepSec * 0.3;
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = this.ui.wave.value === 'farfisa' ? 'square' : this.ui.wave.value;
+                
+                if (portTime > 0) {
+                    osc.frequency.setTargetAtTime(freq, time, portTime);
+                } else {
+                    osc.frequency.setValueAtTime(freq, time);
+                }
+                
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.12, time + 0.005);
+                gain.gain.setValueAtTime(0.12, time + noteDur);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + noteDur + 0.05);
+                
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(time); osc.stop(time + noteDur + 0.1);
+            }
+
+            start() {
+                if (this.isPlaying) return;
+                this.isPlaying = true;
+                this.ui.toggle.textContent = `STOP OSC ${this.index}`;
+                this.ui.toggle.classList.add('active-btn');
+                this.generateFrequencies();
+                this.playNext();
+            }
+
+            stop() {
+                this.isPlaying = false;
+                this.ui.toggle.textContent = `Start Osc ${this.index}`;
+                this.ui.toggle.classList.remove('active-btn');
+                if (this.timeoutId) clearTimeout(this.timeoutId);
+            }
+
+            toggle() { this.isPlaying ? this.stop() : this.start(); }
+        }
+
+        const osc1 = new ArpeggioOscillator(1);
+        const osc2 = new ArpeggioOscillator(2);
+        const bassPedal = new BassPedal();
+
+        const quadBtn = document.getElementById('quadToggleBtn');
+        quadBtn.onclick = () => {
+            quadActive = !quadActive;
+            if (quadActive) {
+                quadBtn.textContent = "Quad Mode: On";
+                quadBtn.classList.add('quad-active');
+                osc2.ui.copy.checked = true;
+                osc2.ui.manualArea.style.opacity = "0.3";
+                osc2.applyTempoSyncUI();
+                quadCaptureBuffer = [];
+                currentQuadIndex = 0;
+                quadPlaybackMode = false;
+                if(osc1.isPlaying) osc1.generateFrequencies();
+            } else {
+                quadBtn.textContent = "Quad Mode: Off";
+                quadBtn.classList.remove('quad-active');
+                osc2.ui.manualArea.style.opacity = "1";
+                osc2.applyTempoSyncUI();
+            }
+        };
+
+        document.getElementById('startAllBtn').onclick = () => { osc1.start(); osc2.start(); bassPedal.start(); };
+        document.getElementById('stopAllBtn').onclick = () => { osc1.stop(); osc2.stop(); bassPedal.stop(); };
+    </script>
+</body>
+</html>
+
